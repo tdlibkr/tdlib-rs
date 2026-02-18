@@ -11,7 +11,8 @@ use std::os::raw::{c_char, c_double, c_int};
 // Link documentation:
 // - https://doc.rust-lang.org/reference/items/external-blocks.html#the-link-attribute
 // - modifiers = "+whole-archive"
-#[link(name = "tdjson_private", kind = "static")]
+// #[link(name = "tdjson_static", kind = "static")]
+#[link(name = "tdjson", kind = "dylib")]
 extern "C" {
     fn td_create_client_id() -> c_int;
     fn td_send(client_id: c_int, request: *const c_char);

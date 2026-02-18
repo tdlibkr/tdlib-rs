@@ -14,10 +14,24 @@ Rust wrapper around the Telegram Database Library.
 [package.metadata.docs.rs]
 features = ["dox"]
 
+# Dynamic
 [package.metadata.system-deps]
-tdjson_static = "1.8.61"
-tdjson_private = "1.8.61"
-# tdjson = "1.8.61"
+tdjson = "1.8.61"
+
+# Static
+# [package.metadata.system-deps]
+# tdjson_static = "1.8.61"
+# tdjson_private = "1.8.61"
+# tdapi = "1.8.61"
+# tdactor = "1.8.61"
+# tdclient = "1.8.61"
+# tdcore = "1.8.61"
+# tddb = "1.8.61"
+# tde2e = "1.8.61"
+# tdmtproto = "1.8.61"
+# tdnet = "1.8.61"
+# tdsqlite = "1.8.61"
+# tdutils = "1.8.61"
 
 [features]
 default = ["bots-only-api"]
