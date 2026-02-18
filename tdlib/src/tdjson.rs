@@ -29,9 +29,17 @@ pub(crate) fn send(client_id: i32, request: String) {
 }
 
 pub(crate) fn receive(timeout: f64) -> Option<String> {
-    unsafe {
-        td_receive(timeout)
-            .as_ref()
-            .map(|response| CStr::from_ptr(response).to_string_lossy().into_owned())
-    }
+    let response_cstr = unsafe {
+        let response_ptr = td_receive(timeout);
+
+        if response_ptr == std::ptr::null() {
+            return None;
+        }
+
+        CStr::from_ptr(response_ptr)
+    };
+
+    let response_string = response_cstr.to_string_lossy().into_owned();
+
+    Some(response_string)
 }
