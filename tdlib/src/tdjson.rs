@@ -8,7 +8,10 @@
 use std::ffi::{CStr, CString};
 use std::os::raw::{c_char, c_double, c_int};
 
-#[link(name = "tdjson")]
+// Link documentation:
+// - https://doc.rust-lang.org/reference/items/external-blocks.html#the-link-attribute
+// - modifiers = "+whole-archive"
+#[link(name = "tdjson_private", kind = "static")]
 extern "C" {
     fn td_create_client_id() -> c_int;
     fn td_send(client_id: c_int, request: *const c_char);

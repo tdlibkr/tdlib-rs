@@ -37,7 +37,7 @@ fn main() -> std::io::Result<()> {
     #[cfg(not(feature = "dox"))]
     {
         system_deps::Config::new().probe().unwrap();
-        
+
         /* let dependencies = system_deps::Config::new().probe().unwrap();
 
         // Документации:

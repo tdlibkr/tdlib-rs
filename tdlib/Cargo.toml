@@ -16,6 +16,7 @@ features = ["dox"]
 
 [package.metadata.system-deps]
 tdjson_static = "1.8.61"
+tdjson_private = "1.8.61"
 # tdjson = "1.8.61"
 
 [features]
