@@ -20,13 +20,9 @@ use std::sync::atomic::{AtomicU32, Ordering};
 static EXTRA_COUNTER: AtomicU32 = AtomicU32::new(0);
 static OBSERVER: Lazy<observer::Observer> = Lazy::new(observer::Observer::new);
 
-static LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
-
 /// Create a TdLib client returning its id. Note that to start receiving
 /// updates for a client you need to send at least a request with it first.
 pub fn create_client() -> i32 {
-    let _lock = LOCK.lock();
-
     tdjson::create_client()
 }
 
@@ -35,11 +31,8 @@ pub fn create_client() -> i32 {
 /// Note that to start receiving updates for a client you need to send
 /// at least a request with it first.
 pub fn receive() -> Option<(Update, i32)> {
-    // let _lock = LOCK.lock();
-
     let response = tdjson::receive(2.0);
     if let Some(response_str) = response {
-        // dbg!(&response_str);
         let response: Value = serde_json::from_str(&response_str).unwrap();
 
         match response.get("@extra") {
@@ -68,15 +61,11 @@ pub fn receive() -> Option<(Update, i32)> {
 }
 
 pub(crate) async fn send_request(client_id: i32, mut request: Value) -> Value {
-    let _lock = LOCK.lock();
-
     let extra_id = EXTRA_COUNTER.fetch_add(1, Ordering::Relaxed);
     request["@extra"] = serde_json::to_value(extra_id).unwrap();
 
     let receiver = OBSERVER.subscribe(extra_id);
     tdjson::send(client_id, request.to_string());
-
-    drop(_lock);
 
     receiver.await.unwrap()
 }
