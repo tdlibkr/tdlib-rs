@@ -45,10 +45,8 @@ async fn handle_authorization_state(
                     env!("API_HASH").into(),
                     "en".into(),
                     "Desktop".into(),
-                    String::new(),
                     env!("CARGO_PKG_VERSION").into(),
-                    false,
-                    true,
+                    env!("CARGO_PKG_VERSION").into(),
                     client_id,
                 )
                 .await;
