@@ -100,23 +100,38 @@ impl<'a> Metadata<'a> {
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Проверка, что какой-то тип является рекурсивным и содержит сам себя
+/// Параметры:
+/// - `root` корневой итем для которого проверка рекурсии
+/// - `check` дочерний проверяемый итем
+/// - `defs_with_type` вроде бы как список типов и их дочерние типы?
+/// - `visited` хешсет для фильтраци, что уже итем такой был проверен
 fn def_self_references<'a>(
     root: &Definition,
     check: &'a Definition,
     defs_with_type: &'a HashMap<&String, Vec<&Definition>>,
     visited: &mut HashSet<&'a String>,
 ) -> bool {
-    visited.insert(&check.name);
+    // Помечаем проверяемый итем
+    visited.insert(&check.ty.name);
+
+    // Перебираем для типа список дочерних типов
     for param in check.params.iter() {
+        // У дочернего типа такое же имя как у корневого проверяемого?
+        // Если такое же, то это значит, что итем рекурсивный?
         if param.ty.name == root.ty.name {
             return true;
         }
 
+        // Получаем теперь список всех подтипов для данного дочернего итема
         if let Some(defs) = defs_with_type.get(&param.ty.name) {
+            // Перебираем дочерние переменные в структуре
             for def in defs {
-                if visited.contains(&def.name) {
+                // Такой итем уже у нас проверялся?
+                if visited.contains(&def.ty.name) {
                     continue;
                 }
+
+                // Проверяем рекурсивно итемы дочерние
                 if def_self_references(root, def, defs_with_type, visited) {
                     return true;
                 }
