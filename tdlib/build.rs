@@ -129,7 +129,7 @@ fn load_tl(file_path: &str) -> Result<Vec<Definition>, std::io::Error> {
             }
         })
         .collect();
-    dbg!(&results);
+    // dbg!(&results);
 
     Ok(results)
 }

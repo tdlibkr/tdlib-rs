@@ -1,13 +1,19 @@
+use crate::{
+    enums::write_enums_mod, functions::write_functions_mod, metadata::Metadata,
+    types::write_types_mod,
+};
 use std::io::{self, Write};
 use tdlib_tl_parser::tl::Definition;
 
 ////////////////////////////////////////////////////////////////////////////////
 
+/// Генерируем непосредственно rust-код и пишем в процессе сразу в файлик
 pub fn generate_rust_code(
     file: &mut impl Write,
     definitions: &[Definition],
     gen_bots_only_api: bool,
 ) -> io::Result<()> {
+    // Напишем префикс в выходной файлик
     write!(
         file,
         "\
@@ -22,10 +28,14 @@ pub fn generate_rust_code(
          "
     )?;
 
-    let metadata = crate::metadata::Metadata::new(definitions);
-    crate::types::write_types_mod(file, definitions, &metadata, gen_bots_only_api)?;
-    crate::enums::write_enums_mod(file, definitions, &metadata, gen_bots_only_api)?;
-    crate::functions::write_functions_mod(file, definitions, &metadata, gen_bots_only_api)?;
+    // Формируем метаданные о типах для будущей обработки
+    let metadata = Metadata::new(definitions);
+
+    write_types_mod(file, definitions, &metadata, gen_bots_only_api)?;
+
+    write_enums_mod(file, definitions, &metadata, gen_bots_only_api)?;
+
+    write_functions_mod(file, definitions, &metadata, gen_bots_only_api)?;
 
     Ok(())
 }

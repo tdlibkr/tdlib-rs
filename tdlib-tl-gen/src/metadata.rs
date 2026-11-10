@@ -7,10 +7,16 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
+////////////////////////////////////////////////////////////////////////////////
+
 use crate::rustifier;
 use std::collections::{HashMap, HashSet};
 use tdlib_tl_parser::tl::{Category, Definition, Type};
 
+////////////////////////////////////////////////////////////////////////////////
+
+/// Дополнительные метаданные о различных типах.
+///
 /// Additional metadata required by several parts of the generation.
 pub(crate) struct Metadata<'a> {
     /// Список типов, которые у нас являются рекурсивными
@@ -19,7 +25,7 @@ pub(crate) struct Metadata<'a> {
     /// TODO: Список типов с дефолтными реализациями?
     default_impl_defs: HashSet<&'a String>,
 
-    /// TODO: Список типов с типами?
+    /// TODO: Список типов и их подтипов?
     defs_with_type: HashMap<&'a String, Vec<&'a Definition>>,
 }
 
@@ -32,17 +38,23 @@ impl<'a> Metadata<'a> {
             defs_with_type: HashMap::new(),
         };
 
+        // Отдельно только различные описания типов
         let type_definitions = definitions
             .iter()
             .filter(|d| d.category == Category::Types)
             .collect::<Vec<_>>();
         // dbg!(&type_definitions);
 
+        // Только описания типов, но в виде хешмапы теперь,
+        // в формате `имя: объявление`
         let type_definition_map = type_definitions
             .iter()
             .map(|d| (&d.name, d))
             .collect::<HashMap<_, _>>();
+        // dbg!(&type_definition_map);
 
+        // Заполняем в метаданных то же самое описание типов
+        // с указанием списка итемов, которые есть внутри
         type_definitions.iter().for_each(|d| {
             metadata
                 .defs_with_type
@@ -50,7 +62,10 @@ impl<'a> Metadata<'a> {
                 .or_default()
                 .push(d);
         });
+        // dbg!(&metadata.defs_with_type);
 
+        // TODO: Перебираем теперь все типы и определяем,
+        // являются ли они рекурсивными сами для себя?
         type_definitions.iter().for_each(|d| {
             if def_self_references(d, d, &metadata.defs_with_type, &mut HashSet::new()) {
                 metadata.recursing_defs.insert(&d.name);
@@ -82,6 +97,9 @@ impl<'a> Metadata<'a> {
     }
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
+/// Проверка, что какой-то тип является рекурсивным и содержит сам себя
 fn def_self_references<'a>(
     root: &Definition,
     check: &'a Definition,
@@ -108,6 +126,8 @@ fn def_self_references<'a>(
 
     false
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 fn def_contains_only_bare_types<'a>(
     check: &'a Definition,
