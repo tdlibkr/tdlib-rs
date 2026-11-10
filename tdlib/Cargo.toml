@@ -1,6 +1,6 @@
 [package]
 name = "tdlib"
-version = "0.11.0"
+version = "0.11.1"
 authors = ["Marco Melorio <marco.melorio@protonmail.com>"]
 edition = "2021"
 license = "MIT OR Apache-2.0"
@@ -16,7 +16,7 @@ features = ["dox"]
 
 # Dynamic
 [package.metadata.system-deps]
-tdjson = "1.8.66"
+tdjson = "1.8.70"
 
 # Static
 # [package.metadata.system-deps]
