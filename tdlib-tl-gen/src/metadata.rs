@@ -41,7 +41,10 @@ impl<'a> Metadata<'a> {
         // Отдельно только различные описания типов
         let type_definitions = definitions
             .iter()
-            .filter(|d| d.category == Category::Types)
+            .filter(|d| {
+                // println!("Definition type test, name {}, type: {}", d.name, d.ty.name);
+                d.category == Category::Types
+            })
             .collect::<Vec<_>>();
         // dbg!(&type_definitions);
 
@@ -67,10 +70,19 @@ impl<'a> Metadata<'a> {
         // TODO: Перебираем теперь все типы и определяем,
         // являются ли они рекурсивными сами для себя?
         type_definitions.iter().for_each(|d| {
+            // println!("Definition test: {}", d.name);
             if def_self_references(d, d, &metadata.defs_with_type, &mut HashSet::new()) {
                 metadata.recursing_defs.insert(&d.name);
             }
+
+            // TODO: Дополнительно укажем еще этот тип явно,
+            // так как алгоритм определения рекурсии что-то не хочет никак определять
+            // что рекурсия есть на более глубоком уровне.
+            if d.name == "richTextButton" {
+                metadata.recursing_defs.insert(&d.name);
+            }
         });
+        // dbg!(&metadata.recursing_defs);
 
         type_definitions.iter().for_each(|d| {
             if def_contains_only_bare_types(d, &type_definition_map) {
@@ -111,8 +123,18 @@ fn def_self_references<'a>(
     defs_with_type: &'a HashMap<&String, Vec<&Definition>>,
     visited: &mut HashSet<&'a String>,
 ) -> bool {
-    // Помечаем проверяемый итем
-    visited.insert(&check.ty.name);
+    // Помечаем проверяемый итем, нужно
+    // здесь сохранить именно то же самое объявление,
+    // а не только его имя.
+    visited.insert(&check.name);
+    /* visited.insert(std::ptr::from_ref(check)); */
+    /* if std::ptr::from_ref(root) != std::ptr::from_ref(check) {
+    visited.insert(check.ty.name.clone());
+    } */
+    /* visited.insert(check.ty.name.clone()); */
+    /* if depth > 5 {
+        return false;
+    } */
 
     // Перебираем для типа список дочерних типов
     for param in check.params.iter() {
@@ -127,9 +149,13 @@ fn def_self_references<'a>(
             // Перебираем дочерние переменные в структуре
             for def in defs {
                 // Такой итем уже у нас проверялся?
-                if visited.contains(&def.ty.name) {
+                if visited.contains(&def.name) {
                     continue;
                 }
+                /* if visited.contains(def.ty.name.as_str()) {
+                    println!("Continue type: {}", def.ty.name);
+                    continue;
+                } */
 
                 // Проверяем рекурсивно итемы дочерние
                 if def_self_references(root, def, defs_with_type, visited) {
