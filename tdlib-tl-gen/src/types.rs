@@ -9,7 +9,7 @@
 
 //! Code to generate Rust's `struct`'s from TL definitions.
 
-use crate::ignore_type;
+use crate::helpers::ignore_type;
 use crate::metadata::Metadata;
 use crate::rustifier;
 use std::io::{self, Write};

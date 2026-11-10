@@ -13,13 +13,19 @@ use tdlib_tl_parser::tl::{Category, Definition, Type};
 
 /// Additional metadata required by several parts of the generation.
 pub(crate) struct Metadata<'a> {
+    /// Список типов, которые у нас являются рекурсивными
     recursing_defs: HashSet<&'a String>,
+
+    /// TODO: Список типов с дефолтными реализациями?
     default_impl_defs: HashSet<&'a String>,
+
+    /// TODO: Список типов с типами?
     defs_with_type: HashMap<&'a String, Vec<&'a Definition>>,
 }
 
 impl<'a> Metadata<'a> {
     pub fn new(definitions: &'a [Definition]) -> Self {
+        // Создаем буфер для будущего заполнения
         let mut metadata = Self {
             recursing_defs: HashSet::new(),
             default_impl_defs: HashSet::new(),
@@ -30,6 +36,7 @@ impl<'a> Metadata<'a> {
             .iter()
             .filter(|d| d.category == Category::Types)
             .collect::<Vec<_>>();
+        // dbg!(&type_definitions);
 
         let type_definition_map = type_definitions
             .iter()
